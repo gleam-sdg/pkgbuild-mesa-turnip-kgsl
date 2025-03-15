@@ -14,19 +14,13 @@
 
 highmem=1
 
-pkgbase=mesa
+pkgbase=mesa-turnip-kgsl
 pkgname=(
-  mesa
+  mesa-turnip-kgsl
   opencl-clover-mesa
   opencl-rusticl-mesa
   vulkan-gfxstream
   vulkan-mesa-layers
-  vulkan-nouveau
-  vulkan-radeon
-  vulkan-swrast
-  vulkan-virtio
-  vulkan-broadcom
-  vulkan-panfrost
   vulkan-freedreno
   mesa-docs
 )
@@ -106,6 +100,7 @@ options=(
 )
 source=(
   "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"{,.sig}
+  "https://github.com/MastaG/mesa-turnip-ppa/archive/refs/tags/25.0.0-devel_fd431a5.tar.gz"
   0001-docs-Fix-build-with-Sphinx-8.2.patch
   0002-gfxstream-Fix-log-format-error-on-x86.patch
   0003-gallium-radeon-Make-sure-radeonsi-PCI-IDs-are-also-i.patch
@@ -149,6 +144,7 @@ done
 
 b2sums=('9a73a3321c9f1d7d4384779f647c43bcb536b316dcc9a61b8a78a6f4bfd4642366e418155db5c2190b530cebee434554c6c4d2d59f68a87bb4056467fe601825'
         'SKIP'
+	'a8b4877deba67cb97cbeb45511e2f059c8fd830364ff0e0276ed7d7d709fe084baed93be6881978bcca1b43755c588a089f77518e13363b79c3bf8addff5ea3a'
         '1782fae4e7a323564b791f5762e1bc1084d9124ebe471b4cc7a9ac65795c3ea41ef075d36a6281689d7398b8d14311723ccec759d246fbdfd246d1b757c036f2'
         '3d604a2f81177f0373230af0c036acd3f0da3933cb490a9f09eb1982b91dc8709a3f67f11fc761b023df4fbbd4ea6dbc3f4dae85e084aa44270100c06948a6d5'
         'b7911c050d25ff4cb3ce5e69a2e0d27d19b91c42bfe4561024044fa764eac8314e8176f20cef7547538b9ee129bf9b5bb878ff9b2c599be83d9aec1f49bc156a'
@@ -173,6 +169,7 @@ b2sums=('9a73a3321c9f1d7d4384779f647c43bcb536b316dcc9a61b8a78a6f4bfd4642366e4181
 # https://docs.mesa3d.org/relnotes.html
 sha256sums=('49eb55ba5acccae91deb566573a6a73144a0f39014be1982d78c21c5b6b0bb3f'
             'SKIP'
+	    '18e9d941df01a2b0e4c8d1ded9cb2ca30b92c95f9a71cef36695351879f65edc'
             'a8fa6befb380e613a288f605c290400eb0f92642b9fe7c534d6a40e315dc1e5b'
             'a481c2d56d91b936d0c445bf90ab4475e3c35698b2474fdaf85a8405a793bfcf'
             'd531eb66a4b9512f9d2f3db68eba4a6b155a795c3b42ef25e357426896fe1b80'
@@ -210,6 +207,11 @@ prepare() {
   patch -Np1 -i ../0004-aco-insert-dependency-waits-in-certain-situations.patch
   patch -Np1 -i ../0005-radv-amdgpu-fix-device-deduplication.patch
 
+  # Fixes for freedreno using kgsl
+  patch -Np1 < ../mesa-turnip-ppa-25.0.0-devel_fd431a5/turnip-patches/dri3.patch 
+  patch -Np1 < ../mesa-turnip-ppa-25.0.0-devel_fd431a5/turnip-patches/fix-for-anon-file.patch
+  patch -Np1 < ../mesa-turnip-ppa-25.0.0-devel_fd431a5/turnip-patches/fix-for-getprogname.patch
+
   # Include package release in version string so Chromium invalidates
   # its GPU cache; otherwise it can cause pages to render incorrectly.
   # https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/2020604
@@ -245,6 +247,7 @@ build() {
     -D video-codecs=all
     -D vulkan-drivers=amd,gfxstream,swrast,broadcom,panfrost,virtio,freedreno,nouveau
     -D vulkan-layers=device-select,overlay,screenshot,vram-report-limit
+    -D freedreno-kmds=kgsl
   )
 
   # Build only minimal debug info to reduce size
@@ -268,7 +271,7 @@ _pick() {
   done
 }
 
-package_mesa() {
+package_mesa-turnip-kgsl() {
   depends=(
     expat
     gcc-libs
@@ -296,16 +299,19 @@ package_mesa() {
     libva-driver
     opengl-driver
     vdpau-driver
+    mesa
   )
   conflicts=(
     'libva-mesa-driver<1:24.2.7-1'
     'mesa-libgl<17.0.1-2'
     'mesa-vdpau<1:24.2.7-1'
+    mesa
   )
   replaces=(
     'libva-mesa-driver<1:24.2.7-1'
     'mesa-libgl<17.0.1-2'
     'mesa-vdpau<1:24.2.7-1'
+    mesa
   )
 
   meson install -C build --destdir "$pkgdir"
