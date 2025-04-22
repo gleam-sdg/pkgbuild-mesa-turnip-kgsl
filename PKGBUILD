@@ -26,8 +26,8 @@ pkgname=(
   vulkan-freedreno
   mesa-docs
 )
-pkgver=25.0.2
-pkgrel=2
+pkgver=25.0.4
+pkgrel=1
 epoch=1
 pkgdesc="Open-source OpenGL drivers"
 url="https://www.mesa3d.org/"
@@ -101,8 +101,7 @@ options=(
 source=(
   "https://mesa.freedesktop.org/archive/mesa-$pkgver.tar.xz"{,.sig}
   "https://github.com/MastaG/mesa-turnip-ppa/archive/refs/tags/25.0.0-devel_fd431a5.tar.gz"
-  0001-docs-Fix-build-with-Sphinx-8.2.patch
-  0002-gfxstream-Use-proper-log-format-for-32-bit-Vulkan.patch
+  0001-docs-Fix-HTML-build-with-Sphinx-8.2.patch
 )
 validpgpkeys=(
   946D09B5E4C9845E63075FF1D961C596A7203456 # Andres Gomez <tanty@igalia.com>
@@ -139,11 +138,10 @@ for _crate in "${!_crates[@]}"; do
   )
 done
 
-b2sums=('6e387806e880d518a68b3a8d4cb25071e9d50732aee06cc8b88f717c569c2764d658d40a8710ff362820a30133d5fde6b82ea7fb552fd0f690bcdf276a6f5e67'
+b2sums=('b661bc1534bff848c32c559ecc790fd7770682aa7f35403c2fb50b899ad83dbbafb2baecf0e372972849378a4a539eeafe5e9c9e1497ab4313ebcafa89f6e248'
         'SKIP'
 	'a8b4877deba67cb97cbeb45511e2f059c8fd830364ff0e0276ed7d7d709fe084baed93be6881978bcca1b43755c588a089f77518e13363b79c3bf8addff5ea3a'
-        '1782fae4e7a323564b791f5762e1bc1084d9124ebe471b4cc7a9ac65795c3ea41ef075d36a6281689d7398b8d14311723ccec759d246fbdfd246d1b757c036f2'
-        '6c77eef11b959627f447da3a27a3034067de8ea8a04c399e0d51001c078c669f223b893fdfd3f37d1c6e68fffca4d972c41f7e997115d1d4cc1f92f91df228d0'
+        'cd708e65f7d46cfda58017b11968fe8142402807ba93a7972213d2bef9fca7c29d3fc048731cb551f2fd0dfc82411bd78f023e1a5a370184113a5d04fdc23865'
         'a6d47c903be6094423d89b8ec3ca899d0a84df6dbd6e76632bb6c9b9f40ad9c216f8fa400310753d392f85072756b43ac3892e0a2c4d55f87ab6463002554823'
         '9c34f1ab14ad5ae124882513e0f14b1d731d06a43203bdc37fa3b202dd3ce93dbe8ebb554d01bab475689fe6ffd3ec0cbc0d5365c9b984cb83fb34ea3e9e732e'
         'fac5cf6339dc3c0a40b100035a5c874cc7b2efeafeb31c51488d25156e392dc9db86a497e76eead351d2126f69d060422faa9c55d73407a0de9f5be18d234123'
@@ -161,11 +159,10 @@ b2sums=('6e387806e880d518a68b3a8d4cb25071e9d50732aee06cc8b88f717c569c2764d658d40
         '8bc6f68ed286bea617a2cfaf3949bb699d3a0466faeca735314a51596ce950e4ee57eda88154bd562c1728cfaff4cdb5bc1ba701b9d47a9c50d4c4f011bee975')
 
 # https://docs.mesa3d.org/relnotes.html
-sha256sums=('adf904d083b308df95898600ffed435f4b5c600d95fb6ec6d4c45638627fdc97'
+sha256sums=('76293cf4372ca4e4e73fd6c36c567b917b608a4db9d11bd2e33068199a7df04d'
             'SKIP'
 	    '18e9d941df01a2b0e4c8d1ded9cb2ca30b92c95f9a71cef36695351879f65edc'
-            'a8fa6befb380e613a288f605c290400eb0f92642b9fe7c534d6a40e315dc1e5b'
-            'f5506968e2479b9367cc7f67dcbd4dc660a7e144345ef78a21fe79e55385fc68'
+            '279a54c7c531fa89a491b38f4467530c44d2f8d4e84e903ef5e460e05d283532'
             'ed646292ffc8188ef8ea4d1e0e0150fb15a5c2e12ad9b8fc191ae7a8a7f3c4b9'
             'a941429fea7e08bedec25e4f6785b6ffaacc6b755da98df5ef3e7dcf4a124c4f'
             '168fb715dda47215e360912c096649d23d58bf392ac62f73919e831745e40f26'
@@ -186,10 +183,7 @@ prepare() {
   cd mesa-$pkgver
 
   # Fix build with Sphinx 8.2
-  patch -Np1 -i ../0001-docs-Fix-build-with-Sphinx-8.2.patch
-
-  # Fix compilation error on x86
-  patch -Np1 -i ../0002-gfxstream-Use-proper-log-format-for-32-bit-Vulkan.patch
+  patch -Np1 -i ../0001-docs-Fix-HTML-build-with-Sphinx-8.2.patch
 
   # Fixes for freedreno using kgsl
   patch -Np1 < ../mesa-turnip-ppa-25.0.0-devel_fd431a5/turnip-patches/dri3.patch 
